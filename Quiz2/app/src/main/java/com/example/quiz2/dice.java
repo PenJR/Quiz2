@@ -7,6 +7,7 @@ import android.animation.ObjectAnimator;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,6 +24,7 @@ public class dice extends AppCompatActivity {
     private LinearLayout diceContainer;
     private ImageView initialDiceImage;
     private Random random = new Random();
+    private Handler handler = new Handler();
 
     private final int[] diceFaces = {
             R.drawable.dice1,
@@ -89,32 +91,48 @@ public class dice extends AppCompatActivity {
                     params.setMargins(8, 0, 8, 0);
                     diceImage.setLayoutParams(params);
 
-                    // Set initial general dice image
                     diceImage.setImageResource(R.drawable.dicegeneral);
                     diceContainer.addView(diceImage);
 
-                    // Generate final roll and color
-                    final int rolledNumber = random.nextInt(6) + 1;
                     final int tintColor = getRandomColor();
+                    diceImage.setColorFilter(tintColor, PorterDuff.Mode.MULTIPLY);
 
-                    // Rotation animation
-                    ObjectAnimator rotationAnim = ObjectAnimator.ofFloat(diceImage, "rotation", 0f, 1440f); // 4 full spins
+                    final int finalIndex = i;
+                    final int finalRoll = random.nextInt(6) + 1;
+
+                    // Animate rotation
+                    ObjectAnimator rotationAnim = ObjectAnimator.ofFloat(diceImage, "rotation", 0f, 1440f);
                     rotationAnim.setDuration(800);
 
-                    // When animation ends, show final face
-                    final int finalIndex = i;
+                    // Start changing dice faces every 100ms
+                    Runnable imageCycler = new Runnable() {
+                        int frameCount = 0;
+
+                        @Override
+                        public void run() {
+                            if (frameCount < 8) {
+                                int randomFace = diceFaces[random.nextInt(6)];
+                                diceImage.setImageResource(randomFace);
+                                diceImage.setColorFilter(tintColor, PorterDuff.Mode.MULTIPLY);
+                                frameCount++;
+                                handler.postDelayed(this, 100);
+                            }
+                        }
+                    };
+                    handler.post(imageCycler);
+
+                    // When animation ends, set final dice face
                     rotationAnim.addListener(new Animator.AnimatorListener() {
                         @Override
                         public void onAnimationStart(Animator animation) { }
 
                         @Override
                         public void onAnimationEnd(Animator animation) {
-                            diceImage.setRotation(0f); // reset rotation
-                            diceImage.setImageResource(diceFaces[rolledNumber - 1]);
+                            diceImage.setRotation(0f); // Reset rotation
+                            diceImage.setImageResource(diceFaces[finalRoll - 1]);
                             diceImage.setColorFilter(tintColor, PorterDuff.Mode.MULTIPLY);
 
-                            // Update result text
-                            resultTextBuilder.append(rolledNumber);
+                            resultTextBuilder.append(finalRoll);
                             if (finalIndex < diceCount - 1) {
                                 resultTextBuilder.append(" + ");
                             }
@@ -130,7 +148,6 @@ public class dice extends AppCompatActivity {
                         public void onAnimationRepeat(Animator animation) { }
                     });
 
-                    // Start rotation animation
                     rotationAnim.start();
                 }
             }
