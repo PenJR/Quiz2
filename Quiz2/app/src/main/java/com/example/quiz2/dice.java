@@ -17,6 +17,14 @@ public class dice extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_dice);
         myButtonListenerMethod();
+
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();  // closes dice activity and returns to MainActivity
+            }
+        });
     }
     public void myButtonListenerMethod() {
         Button button = (Button)
@@ -55,4 +63,6 @@ public class dice extends AppCompatActivity {
             }
         });
     }
+
+
 }

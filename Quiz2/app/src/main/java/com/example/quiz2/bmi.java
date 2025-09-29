@@ -15,8 +15,17 @@ public class bmi extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_bmi);
         myButtonListenerMethod();
+
+        Button backButton = findViewById(R.id.backButton);
+        backButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();  // Close BMI activity and return to MainActivity
+            }
+        });
+
     }
 
     public void myButtonListenerMethod() {
